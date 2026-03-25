@@ -103,11 +103,24 @@ const TAX_ANALYSIS_SCHEMA = {
         }
       },
     },
+    extractionSources: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          category: { type: Type.STRING },
+          sourceFile: { type: Type.STRING },
+          amount: { type: Type.NUMBER },
+          explanation: { type: Type.STRING }
+        },
+        required: ["category", "sourceFile", "amount", "explanation"]
+      }
+    },
   },
   required: ["summary", "itrGuidance", "advanceTaxSchedule", "detailedBreakdown", "recommendations"],
 };
 
-export async function analyzeTaxDocuments(files: { data: string; mimeType: string }[], financialYear: string): Promise<TaxAnalysisResult> {
+export async function analyzeTaxDocuments(files: { name: string; data: string; mimeType: string }[], financialYear: string): Promise<TaxAnalysisResult> {
   const model = "gemini-3-flash-preview";
   
   const systemInstruction = `You are a Senior Indian Chartered Accountant. Analyze the provided documents for FY ${financialYear}. 
@@ -118,14 +131,19 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
   For advance tax schedule, ensure the percentages are cumulative (15%, 45%, 75%, 100%) and the amounts are calculated correctly based on the total tax liability minus TDS. Note that advance tax is only applicable if the estimated tax liability (after TDS) is ₹10,000 or more. If it's less, the schedule should reflect 0 amounts.
   Ensure perfect grammatical accuracy in all text responses. Do not use a comma immediately after an ampersand (e.g., use "A & B" not "A &, B"). Do not use Oxford commas (e.g., use "A, B and C" instead of "A, B, and C").
-  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.), crypto exchanges, real estate transactions and foreign asset proofs. Parse their specific statement formats accurately. If foreign assets are detected, provide a pre-filled Schedule FA.`;
+  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.), crypto exchanges, real estate transactions and foreign asset proofs. Parse their specific statement formats accurately. If foreign assets are detected, provide a pre-filled Schedule FA.
+  CRITICAL: You MUST provide an 'extractionSources' array that details exactly which file contributed to which income category (Salary, STCG, LTCG, Dividends, Other, Deductions) and the specific amount extracted from that file. Use the file names provided in the prompt.`;
 
-  const parts = files.map(f => ({
-    inlineData: {
-      data: f.data.split(',')[1] || f.data, // Remove data:image/png;base64, if present
-      mimeType: f.mimeType
-    }
-  }));
+  const parts: any[] = [];
+  files.forEach((f, index) => {
+    parts.push({ text: `--- FILE ${index + 1}: ${f.name} ---` });
+    parts.push({
+      inlineData: {
+        data: f.data.split(',')[1] || f.data, // Remove data:image/png;base64, if present
+        mimeType: f.mimeType
+      }
+    });
+  });
 
   const ai = getAI();
   try {

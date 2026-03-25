@@ -45,6 +45,12 @@ export interface TaxAnalysisResult {
       closingValue: number;
     }[];
   };
+  extractionSources?: {
+    category: string;
+    sourceFile: string;
+    amount: number;
+    explanation: string;
+  }[];
 }
 
 export interface UserProfile {

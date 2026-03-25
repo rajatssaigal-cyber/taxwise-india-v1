@@ -251,6 +251,43 @@ export default function TaxReport() {
               )}
             </div>
           </div>
+
+          {/* Data Sources */}
+          {summary.extractionSources && summary.extractionSources.length > 0 && (
+            <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700">
+              <div className="flex items-center gap-3 mb-6 md:mb-8">
+                <FileText className="w-5 h-5 md:w-6 md:h-6 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Data Sources</h3>
+                <TooltipIcon content="Shows exactly which uploaded file contributed to each calculated value." />
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-slate-700">
+                      <th className="pb-3 font-bold text-ink dark:text-white whitespace-nowrap pr-4">Category</th>
+                      <th className="pb-3 font-bold text-ink dark:text-white whitespace-nowrap pr-4">Source File</th>
+                      <th className="pb-3 font-bold text-ink dark:text-white text-right whitespace-nowrap pr-4">Amount</th>
+                      <th className="pb-3 font-bold text-ink dark:text-white whitespace-nowrap">Explanation</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-slate-700/50">
+                    {summary.extractionSources.map((source, i) => (
+                      <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-ink dark:text-white">{getStr(source.category)}</td>
+                        <td className="py-4 pr-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
+                            {getStr(source.sourceFile)}
+                          </span>
+                        </td>
+                        <td className="py-4 text-right font-mono pr-4 font-bold text-ink dark:text-white">{formatCurrency(source.amount)}</td>
+                        <td className="py-4 text-xs leading-relaxed">{getStr(source.explanation)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Guidance & Schedule */}

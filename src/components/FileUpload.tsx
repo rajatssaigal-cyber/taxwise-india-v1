@@ -18,7 +18,7 @@ export default function FileUpload() {
   const [processing, setProcessing] = useState(false);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
 
-  const processFile = async (file: File): Promise<{ data: string; mimeType: string }> => {
+  const processFile = async (file: File): Promise<{ name: string; data: string; mimeType: string }> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -39,7 +39,7 @@ export default function FileUpload() {
             }
             const base64 = btoa(binary);
             
-            resolve({ data: base64, mimeType: 'text/csv' });
+            resolve({ name: file.name, data: base64, mimeType: 'text/csv' });
           } catch (err: any) {
             console.error('Spreadsheet parse error:', err);
             reject(err?.message || 'Failed to parse spreadsheet');
@@ -47,7 +47,7 @@ export default function FileUpload() {
         } else {
           // Extract just the base64 data, removing the data URL prefix
           const base64Data = (result as string).split(',')[1] || (result as string);
-          resolve({ data: base64Data, mimeType: file.type });
+          resolve({ name: file.name, data: base64Data, mimeType: file.type });
         }
       };
       reader.onerror = () => reject('File reading error');
@@ -120,6 +120,7 @@ export default function FileUpload() {
             detailedBreakdown: result.detailedBreakdown,
             recommendations: result.recommendations,
             ...(result.foreignAssets ? { foreignAssets: result.foreignAssets } : {}),
+            ...(result.extractionSources ? { extractionSources: result.extractionSources } : {}),
             createdAt: serverTimestamp()
           });
         } catch (firestoreErr) {
