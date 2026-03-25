@@ -89,6 +89,13 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
     }).format(amount);
   };
 
+  const groupedHistory = history.reduce((acc, analysis) => {
+    const fy = analysis.financialYear || 'Unknown FY';
+    if (!acc[fy]) acc[fy] = [];
+    acc[fy].push(analysis);
+    return acc;
+  }, {} as Record<string, SavedAnalysis[]>);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -139,36 +146,41 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                   <p className="text-sm font-medium">No saved reports yet.<br/>Upload documents to generate one.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {history.map((analysis) => (
-                    <motion.button
-                      key={analysis.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleSelect(analysis)}
-                      className="w-full text-left p-4 rounded-2xl border border-indigo-50 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/50 bg-white dark:bg-slate-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all group"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <span className="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black tracking-widest uppercase rounded-md mb-2">
-                            FY {analysis.financialYear}
-                          </span>
-                          <h4 className="font-bold text-ink dark:text-white text-sm">Tax Report</h4>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-                      </div>
-                      <div className="flex justify-between items-end">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Total Income</span>
-                          <span className="font-mono font-bold text-ink dark:text-white text-sm">
-                            {formatCurrency(analysis.summary.totalIncome)}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-                          {formatDate(analysis.createdAt)}
-                        </span>
-                      </div>
-                    </motion.button>
+                <div className="space-y-8">
+                  {Object.entries(groupedHistory).map(([fy, analyses]) => (
+                    <div key={fy} className="space-y-4">
+                      <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2">{fy}</h3>
+                      {analyses.map((analysis) => (
+                        <motion.button
+                          key={analysis.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleSelect(analysis)}
+                          className="w-full text-left p-4 rounded-2xl border border-indigo-50 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/50 bg-white dark:bg-slate-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all group"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <span className="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black tracking-widest uppercase rounded-md mb-2">
+                                FY {analysis.financialYear}
+                              </span>
+                              <h4 className="font-bold text-ink dark:text-white text-sm">Tax Report</h4>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+                          </div>
+                          <div className="flex justify-between items-end">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Total Income</span>
+                              <span className="font-mono font-bold text-ink dark:text-white text-sm">
+                                {formatCurrency(analysis.summary.totalIncome)}
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                              {formatDate(analysis.createdAt)}
+                            </span>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
                   ))}
                 </div>
               )}

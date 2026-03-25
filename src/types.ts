@@ -27,7 +27,11 @@ export interface TaxAnalysisResult {
     percentage: number;
     amount: number;
   }[];
-  detailedBreakdown: string; // Markdown
+  detailedBreakdown: {
+    title: string;
+    description: string;
+    amount?: number;
+  }[];
   recommendations: string[];
   foreignAssets?: {
     detected: boolean;

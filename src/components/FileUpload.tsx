@@ -14,7 +14,7 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function FileUpload() {
-  const { setSummary, setLoading, setError, error, isLoading, financialYear, files, setFiles } = useTaxStore();
+  const { setSummary, setLoading, setError, error, isLoading, financialYear, setFinancialYear, files, setFiles } = useTaxStore();
   const [processing, setProcessing] = useState(false);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
 
@@ -160,7 +160,7 @@ export default function FileUpload() {
           </div>
           <h3 className="text-lg md:text-xl font-bold text-ink dark:text-white mb-2 text-center">Drop your tax documents here</h3>
           <p className="text-xs md:text-sm text-gray-400 dark:text-gray-500 font-medium text-center max-w-sm">
-            Upload Form 16, Salary Slips, or P&L Statements from brokers (Zerodha, Groww, Upstox, etc.)
+            Upload income statements, Form 16, salary slips, broker statements, and all other source of income proofs.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
             <span className="px-2 py-1 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 rounded-md text-[10px] font-bold uppercase tracking-wider">PDF</span>
@@ -212,8 +212,19 @@ export default function FileUpload() {
               exit={{ height: 0, opacity: 0 }}
               className="mt-8 space-y-3 overflow-hidden"
             >
-              <div className="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-500 uppercase mb-4">
-                SELECTED FILES ({files.length})
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-500 uppercase">
+                  SELECTED FILES ({files.length})
+                </div>
+                <select
+                  value={financialYear}
+                  onChange={(e) => setFinancialYear(e.target.value)}
+                  className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-ink dark:text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500/50"
+                >
+                  <option value="2025-26">FY 2025-26</option>
+                  <option value="2024-25">FY 2024-25</option>
+                  <option value="2023-24">FY 2023-24</option>
+                </select>
               </div>
               {files.map((file, i) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700">

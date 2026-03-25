@@ -17,7 +17,7 @@ export const useTaxStore = create<ExtendedTaxStore>((set) => ({
   summary: null,
   isLoading: false,
   error: null,
-  financialYear: '2024-25',
+  financialYear: '2025-26',
   user: null,
   files: [],
   theme: 'light',

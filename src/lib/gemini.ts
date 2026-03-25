@@ -65,7 +65,18 @@ const TAX_ANALYSIS_SCHEMA = {
         required: ["dueDate", "percentage", "amount"],
       },
     },
-    detailedBreakdown: { type: Type.STRING },
+    detailedBreakdown: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          description: { type: Type.STRING },
+          amount: { type: Type.NUMBER },
+        },
+        required: ["title", "description"],
+      },
+    },
     recommendations: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
@@ -89,6 +100,8 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   Calculate tax for both Old Regime and New Regime. 
   Return a structured JSON object. 
   Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
+  For advance tax schedule, ensure the percentages are cumulative (15%, 45%, 75%, 100%) and the amounts are calculated correctly based on the total tax liability minus TDS. Note that advance tax is only applicable if the estimated tax liability (after TDS) is ₹10,000 or more. If it's less, the schedule should reflect 0 amounts.
+  Ensure perfect grammatical accuracy in all text responses. Do not use a comma immediately after an ampersand (e.g., use "A & B" not "A &, B").
   You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.). Parse their specific P&L statement formats accurately.`;
 
   const parts = files.map(f => ({

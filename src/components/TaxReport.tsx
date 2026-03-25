@@ -37,7 +37,7 @@ function TooltipIcon({ content }: { content: string }) {
 
 export default function TaxReport() {
   const { summary, setSummary } = useTaxStore();
-  const [activeTab, setActiveTab] = useState<'guidance' | 'schedule'>('guidance');
+  const [activeTab, setActiveTab] = useState<'guidance' | 'schedule' | 'filing'>('guidance');
 
   if (!summary) return null;
 
@@ -154,29 +154,33 @@ export default function TaxReport() {
                 <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">LIVE DATA</span>
               </div>
             </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {chartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip 
-                    formatter={(value: number) => formatCurrency(value)}
-                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="h-[300px] w-full flex items-center justify-center">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {chartData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value: number) => formatCurrency(value)}
+                      contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                    />
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-gray-400 dark:text-gray-500 text-sm font-medium">No income data available for chart</div>
+              )}
             </div>
           </div>
 
@@ -187,8 +191,24 @@ export default function TaxReport() {
               <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Detailed Breakdown</h3>
               <TooltipIcon content="In-depth analysis of your tax computation, deductions, and exemptions." />
             </div>
-            <div className="prose prose-sm md:prose-base prose-indigo dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 font-sans leading-relaxed">
-              <Markdown>{getStr(summary.detailedBreakdown)}</Markdown>
+            <div className="space-y-4">
+              {Array.isArray(summary.detailedBreakdown) ? summary.detailedBreakdown.map((item, i) => (
+                <div key={i} className="p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-sm font-bold text-ink dark:text-white">{getStr(item.title)}</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{getStr(item.description)}</p>
+                  </div>
+                  {item.amount !== undefined && item.amount !== null && (
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-sm font-black text-ink dark:text-white font-mono">{formatCurrency(item.amount)}</span>
+                    </div>
+                  )}
+                </div>
+              )) : (
+                <div className="p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{getStr(summary.detailedBreakdown)}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -196,10 +216,10 @@ export default function TaxReport() {
         {/* Right Column: Guidance & Schedule */}
         <div className="space-y-6 md:space-y-8">
           <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700 flex flex-col h-full">
-            <div className="flex p-1 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-8 no-print">
+            <div className="flex p-1 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-8 no-print overflow-x-auto hide-scrollbar">
               <button
                 onClick={() => setActiveTab('guidance')}
-                className={`flex-1 py-3 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
+                className={`flex-1 min-w-[100px] py-3 px-2 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
                   activeTab === 'guidance' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-400 hover:text-ink dark:hover:text-white'
                 }`}
               >
@@ -207,11 +227,19 @@ export default function TaxReport() {
               </button>
               <button
                 onClick={() => setActiveTab('schedule')}
-                className={`flex-1 py-3 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
+                className={`flex-1 min-w-[100px] py-3 px-2 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
                   activeTab === 'schedule' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-400 hover:text-ink dark:hover:text-white'
                 }`}
               >
                 ADVANCE TAX
+              </button>
+              <button
+                onClick={() => setActiveTab('filing')}
+                className={`flex-1 min-w-[100px] py-3 px-2 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
+                  activeTab === 'filing' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-400 hover:text-ink dark:hover:text-white'
+                }`}
+              >
+                FILING GUIDE
               </button>
             </div>
 
@@ -266,7 +294,7 @@ export default function TaxReport() {
                     </div>
                   )}
                 </motion.div>
-              ) : (
+              ) : activeTab === 'schedule' ? (
                 <motion.div
                   key="schedule"
                   initial={{ opacity: 0, x: 20 }}
@@ -279,7 +307,7 @@ export default function TaxReport() {
                       <div key={i} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
                         <div className="flex flex-col">
                           <span className="text-xs font-bold text-ink dark:text-white">{getStr(item?.dueDate)}</span>
-                          <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase">{Number(item?.percentage) || 0}% INSTALLMENT</span>
+                          <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase">UP TO {Number(item?.percentage) || 0}%</span>
                         </div>
                         <div className="text-right">
                           <span className="text-sm font-black text-ink dark:text-white font-mono">{formatCurrency(item?.amount)}</span>
@@ -296,6 +324,59 @@ export default function TaxReport() {
                     <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
                       Interest under section 234C may apply if advance tax is not paid as per this schedule.
                     </p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="filing"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">1</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Login to e-Filing Portal</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Go to <a href="https://eportal.incometax.gov.in/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">eportal.incometax.gov.in</a> and login using your PAN and password.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">2</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Select File Return</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Navigate to <strong>e-File &gt; Income Tax Returns &gt; File Income Tax Return</strong>.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">3</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Choose Assessment Year</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Select the relevant Assessment Year (e.g., 2026-27 for FY 2025-26) and mode of filing as <strong>Online</strong>.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">4</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Select ITR Form</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Choose <strong>{getStr(summary.itrGuidance?.formType)}</strong> based on our recommendation.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">5</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Verify Pre-filled Data</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Check the pre-filled data against your Form 16 and AIS/TIS. Add any missing income or deductions.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">6</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-ink dark:text-white">Pay Tax & e-Verify</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pay any balance tax due, submit the return, and e-Verify using Aadhaar OTP or Net Banking.</p>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
