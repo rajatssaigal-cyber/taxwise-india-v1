@@ -1,0 +1,177 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Upload, FileText, FileSpreadsheet, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import * as XLSX from 'xlsx';
+import { analyzeTaxDocuments } from '../lib/gemini';
+import { useTaxStore } from '../store/useTaxStore';
+
+export default function FileUpload() {
+  const { setSummary, setLoading, setError, isLoading, financialYear } = useTaxStore();
+  const [files, setFiles] = useState<File[]>([]);
+  const [processing, setProcessing] = useState(false);
+
+  const processFile = async (file: File): Promise<{ data: string; mimeType: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const result = e.target?.result;
+        if (!result) return reject('Failed to read file');
+
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
+          const workbook = XLSX.read(result, { type: 'binary' });
+          const sheetName = workbook.SheetNames[0];
+          const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+          resolve({ data: btoa(csv), mimeType: 'text/csv' });
+        } else {
+          resolve({ data: result as string, mimeType: file.type });
+        }
+      };
+      reader.onerror = () => reject('File reading error');
+
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
+        reader.readAsBinaryString(file);
+      } else {
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setFiles(prev => [...prev, ...acceptedFiles]);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+      'text/csv': ['.csv'],
+      'image/*': ['.png', '.jpg', '.jpeg']
+    }
+  });
+
+  const handleAnalyze = async () => {
+    if (files.length === 0) return;
+    setProcessing(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const processedFiles = await Promise.all(files.map(processFile));
+      const result = await analyzeTaxDocuments(processedFiles, financialYear);
+      setSummary(result);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      setError('Failed to analyze documents. Please try again.');
+    } finally {
+      setProcessing(false);
+      setLoading(false);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50"
+      >
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed rounded-[2rem] p-12 flex flex-col items-center justify-center transition-all cursor-pointer ${
+            isDragActive ? 'border-indigo-600 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50/50'
+          }`}
+        >
+          <input {...getInputProps()} />
+          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+            <Upload className="w-8 h-8 text-indigo-600" />
+          </div>
+          <h3 className="text-xl font-bold text-ink mb-2">Drop your tax documents here</h3>
+          <p className="text-sm text-gray-400 font-medium">PDF, Excel, or Images of P&L Statement</p>
+        </div>
+
+        <AnimatePresence>
+          {files.length > 0 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mt-8 space-y-3 overflow-hidden"
+            >
+              <div className="text-[10px] font-black tracking-widest text-gray-400 uppercase mb-4">
+                SELECTED FILES ({files.length})
+              </div>
+              {files.map((file, i) => (
+                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    {file.type.includes('image') ? (
+                      <ImageIcon className="w-5 h-5 text-indigo-400" />
+                    ) : file.name.includes('xls') || file.name.includes('csv') ? (
+                      <FileSpreadsheet className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <FileText className="w-5 h-5 text-red-400" />
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-ink truncate max-w-[200px]">{file.name}</span>
+                      <span className="text-[10px] text-gray-400 font-mono">{(file.size / 1024).toFixed(1)} KB</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeFile(i)}
+                    className="p-2 hover:bg-red-50 rounded-xl text-gray-400 hover:text-red-600 transition-colors"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAnalyze}
+                disabled={processing}
+                className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 mt-8 disabled:opacity-50"
+              >
+                {processing ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    ANALYZING...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-6 h-6" />
+                    GENERATE TAX REPORT
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="mt-8 flex items-center justify-center gap-6 opacity-40">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-[10px] font-black tracking-widest uppercase">DPDP ACT COMPLIANT</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-[10px] font-black tracking-widest uppercase">BANK-GRADE SECURITY</span>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+import { ShieldCheck } from 'lucide-react';
