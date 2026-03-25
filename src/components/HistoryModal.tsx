@@ -98,28 +98,28 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-ink/40 dark:bg-slate-950/60 backdrop-blur-sm z-50"
           />
           <motion.div
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col border-l border-indigo-50"
+            className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col border-l border-indigo-50 dark:border-slate-800"
           >
-            <div className="flex items-center justify-between p-6 border-b border-indigo-50">
+            <div className="flex items-center justify-between p-6 border-b border-indigo-50 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-indigo-600" />
+                <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-ink">Saved Reports</h2>
-                  <p className="text-xs text-gray-500 font-medium">Your past tax analyses</p>
+                  <h2 className="text-xl font-black text-ink dark:text-white">Saved Reports</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Your past tax analyses</p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-ink"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-gray-400 hover:text-ink dark:hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -127,14 +127,14 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
             <div className="flex-1 overflow-y-auto p-6">
               {loading ? (
-                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
-                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400 dark:text-gray-500">
+                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
                   <p className="text-sm font-medium">Loading history...</p>
                 </div>
               ) : history.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400 text-center">
-                  <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center">
-                    <FileText className="w-8 h-8 text-gray-300" />
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400 dark:text-gray-500 text-center">
+                  <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-gray-300 dark:text-gray-600" />
                   </div>
                   <p className="text-sm font-medium">No saved reports yet.<br/>Upload documents to generate one.</p>
                 </div>
@@ -146,25 +146,25 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleSelect(analysis)}
-                      className="w-full text-left p-4 rounded-2xl border border-indigo-50 hover:border-indigo-200 bg-white hover:bg-indigo-50/30 transition-all group"
+                      className="w-full text-left p-4 rounded-2xl border border-indigo-50 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/50 bg-white dark:bg-slate-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all group"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <span className="inline-block px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black tracking-widest uppercase rounded-md mb-2">
+                          <span className="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black tracking-widest uppercase rounded-md mb-2">
                             FY {analysis.financialYear}
                           </span>
-                          <h4 className="font-bold text-ink text-sm">Tax Report</h4>
+                          <h4 className="font-bold text-ink dark:text-white text-sm">Tax Report</h4>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-indigo-600 transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
                       </div>
                       <div className="flex justify-between items-end">
                         <div className="flex flex-col">
-                          <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Total Income</span>
-                          <span className="font-mono font-bold text-ink text-sm">
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">Total Income</span>
+                          <span className="font-mono font-bold text-ink dark:text-white text-sm">
                             {formatCurrency(analysis.summary.totalIncome)}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400 font-medium">
+                        <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
                           {formatDate(analysis.createdAt)}
                         </span>
                       </div>

@@ -26,9 +26,9 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="p-8 bg-red-50 text-red-900 min-h-screen font-sans">
+        <div className="p-8 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100 min-h-screen font-sans">
           <h1 className="text-2xl font-bold mb-4">Something went wrong.</h1>
-          <pre className="bg-white p-4 rounded-lg shadow overflow-auto text-sm">
+          <pre className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow overflow-auto text-sm border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400">
             {this.state.error?.toString()}
             {'\n'}
             {this.state.error?.stack}

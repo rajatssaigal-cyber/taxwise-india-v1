@@ -57,10 +57,10 @@ export default function ChatBot() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-white w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] sm:h-[600px] rounded-[2rem] sm:rounded-[3rem] shadow-2xl shadow-indigo-200/50 border border-indigo-50 flex flex-col overflow-hidden mb-4 sm:mb-6"
+            className="bg-white dark:bg-slate-900 w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] sm:h-[600px] rounded-[2rem] sm:rounded-[3rem] shadow-2xl shadow-indigo-200/50 dark:shadow-none border border-indigo-50 dark:border-slate-800 flex flex-col overflow-hidden mb-4 sm:mb-6"
           >
             {/* Header */}
-            <div className="bg-indigo-600 p-8 flex items-center justify-between">
+            <div className="bg-indigo-600 dark:bg-indigo-900 p-8 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
                   <Bot className="w-6 h-6 text-white" />
@@ -79,19 +79,19 @@ export default function ChatBot() {
             </div>
 
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50 dark:bg-slate-950/50">
               {messages.map((msg, i) => (
                 <div
                   key={i}
                   className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    msg.role === 'assistant' ? 'bg-indigo-600 text-white' : 'bg-white border border-indigo-100 text-indigo-600'
+                    msg.role === 'assistant' ? 'bg-indigo-600 dark:bg-indigo-500 text-white' : 'bg-white dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 text-indigo-600 dark:text-indigo-400'
                   }`}>
                     {msg.role === 'assistant' ? <Bot className="w-4 h-4" /> : <UserIcon className="w-4 h-4" />}
                   </div>
                   <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === 'assistant' ? 'bg-white text-ink shadow-sm' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                    msg.role === 'assistant' ? 'bg-white dark:bg-slate-800 text-ink dark:text-white shadow-sm dark:shadow-none border border-transparent dark:border-slate-700' : 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg shadow-indigo-100 dark:shadow-none'
                   }`}>
                     {msg.content}
                   </div>
@@ -99,31 +99,31 @@ export default function ChatBot() {
               ))}
               {isLoading && (
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm dark:shadow-none border border-transparent dark:border-slate-700">
+                    <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Input */}
-            <div className="p-6 bg-white border-t border-indigo-50">
-              <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-100">
+            <div className="p-6 bg-white dark:bg-slate-900 border-t border-indigo-50 dark:border-slate-800">
+              <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800/50 p-2 rounded-2xl border border-gray-100 dark:border-slate-700">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask me anything about your taxes..."
-                  className="flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none"
+                  className="flex-1 bg-transparent px-4 py-2 text-sm text-ink dark:text-white outline-none placeholder-gray-400 dark:placeholder-gray-500"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isLoading}
-                  className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50"
+                  className="p-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all disabled:opacity-50"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -137,7 +137,7 @@ export default function ChatBot() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-300 flex items-center justify-center hover:bg-indigo-700 transition-all"
+        className="w-16 h-16 bg-indigo-600 dark:bg-indigo-500 text-white rounded-2xl shadow-2xl shadow-indigo-300 dark:shadow-none flex items-center justify-center hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all"
       >
         <MessageCircle className="w-8 h-8" />
       </motion.button>

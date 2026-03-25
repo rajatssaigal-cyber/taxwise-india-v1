@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import { useTaxStore } from '../store/useTaxStore';
@@ -15,13 +15,28 @@ import {
   FileText, 
   CheckCircle2, 
   AlertCircle,
-  Info
+  Info,
+  Download,
+  FileDown,
+  PlusCircle
 } from 'lucide-react';
 
 const COLORS = ['#4f46e5', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
 
+function TooltipIcon({ content }: { content: string }) {
+  return (
+    <div className="group relative inline-flex items-center justify-center ml-1">
+      <Info className="w-3 h-3 text-gray-400 cursor-help" />
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ink dark:bg-white text-white dark:text-ink text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center leading-relaxed">
+        {content}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink dark:border-t-white"></div>
+      </div>
+    </div>
+  );
+}
+
 export default function TaxReport() {
-  const { summary } = useTaxStore();
+  const { summary, setSummary } = useTaxStore();
   const [activeTab, setActiveTab] = useState<'guidance' | 'schedule'>('guidance');
 
   if (!summary) return null;
@@ -44,18 +59,60 @@ export default function TaxReport() {
     return JSON.stringify(val);
   };
 
+  const exportCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Category,Amount\n"
+      + `Total Income,${summary.summary.totalIncome}\n`
+      + `Tax Liability (New),${summary.summary.taxLiabilityNew}\n`
+      + `Tax Liability (Old),${summary.summary.taxLiabilityOld}\n`
+      + `Balance Tax,${summary.summary.balanceTax}\n`
+      + `Salary,${summary.summary.incomeSources.salary}\n`
+      + `STCG,${summary.summary.incomeSources.stcg}\n`
+      + `LTCG,${summary.summary.incomeSources.ltcg}\n`
+      + `Dividends,${summary.summary.incomeSources.dividends}\n`
+      + `Other Income,${summary.summary.incomeSources.other}\n`;
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "tax_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportPDF = () => {
+    window.print();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-6xl mx-auto space-y-12 pb-24"
+      className="w-full max-w-6xl mx-auto space-y-12 pb-24 print-container"
     >
       {/* Header Section */}
-      <div className="flex flex-col gap-2">
-        <span className="text-[10px] font-black tracking-[0.2em] text-indigo-600 uppercase">TAX ANALYSIS REPORT</span>
-        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-ink font-sans">
-          Your Financial <span className="italic font-serif text-indigo-600">Blueprint</span>
-        </h2>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] font-black tracking-[0.2em] text-indigo-600 dark:text-indigo-400 uppercase">TAX ANALYSIS REPORT</span>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-ink dark:text-white font-sans">
+            Your Financial <span className="italic font-serif text-indigo-600 dark:text-indigo-400">Blueprint</span>
+          </h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 no-print">
+          <button onClick={() => setSummary(null)} className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-ink dark:text-white rounded-xl transition-colors font-bold text-sm">
+            <PlusCircle className="w-4 h-4" />
+            Add More Files
+          </button>
+          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl transition-colors font-bold text-sm">
+            <FileDown className="w-4 h-4" />
+            Export CSV
+          </button>
+          <button onClick={exportPDF} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors font-bold text-sm">
+            <Download className="w-4 h-4" />
+            Save PDF
+          </button>
+        </div>
       </div>
 
       {/* Main Grid */}
@@ -67,28 +124,34 @@ export default function TaxReport() {
             <StatCard 
               label="TOTAL INCOME" 
               value={formatCurrency(summary.summary.totalIncome)} 
-              icon={<TrendingUp className="w-5 h-5 text-indigo-600" />}
+              icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              tooltip="Sum of all your income sources including salary, capital gains, and other income."
             />
             <StatCard 
               label="TAX LIABILITY (NEW)" 
               value={formatCurrency(summary.summary.taxLiabilityNew)} 
-              icon={<ShieldCheck className="w-5 h-5 text-green-600" />}
+              icon={<ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />}
               subValue={`Old Regime: ${formatCurrency(summary.summary.taxLiabilityOld)}`}
+              tooltip="Estimated tax under the New Tax Regime, which offers lower rates but fewer deductions."
             />
             <StatCard 
               label="BALANCE TAX" 
               value={formatCurrency(summary.summary.balanceTax)} 
-              icon={<Calendar className="w-5 h-5 text-red-600" />}
+              icon={<Calendar className="w-5 h-5 text-red-600 dark:text-red-400" />}
+              tooltip="Remaining tax to be paid after accounting for TDS and advance tax."
             />
           </div>
 
           {/* Chart Card */}
-          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg md:text-xl font-bold text-ink">Income Distribution</h3>
-              <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full">
-                <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">LIVE DATA</span>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg md:text-xl font-bold text-ink dark:text-white">Income Distribution</h3>
+                <TooltipIcon content="Visual breakdown of your different income streams." />
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-full">
+                <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-pulse" />
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">LIVE DATA</span>
               </div>
             </div>
             <div className="h-[300px] w-full">
@@ -107,7 +170,7 @@ export default function TaxReport() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <RechartsTooltip 
                     formatter={(value: number) => formatCurrency(value)}
                     contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                   />
@@ -118,12 +181,13 @@ export default function TaxReport() {
           </div>
 
           {/* Detailed Breakdown */}
-          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700">
             <div className="flex items-center gap-3 mb-6 md:mb-8">
-              <FileText className="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
-              <h3 className="text-xl md:text-2xl font-bold text-ink">Detailed Breakdown</h3>
+              <FileText className="w-5 h-5 md:w-6 md:h-6 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Detailed Breakdown</h3>
+              <TooltipIcon content="In-depth analysis of your tax computation, deductions, and exemptions." />
             </div>
-            <div className="prose prose-sm md:prose-base prose-indigo max-w-none text-gray-600 font-sans leading-relaxed">
+            <div className="prose prose-sm md:prose-base prose-indigo dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 font-sans leading-relaxed">
               <Markdown>{getStr(summary.detailedBreakdown)}</Markdown>
             </div>
           </div>
@@ -131,12 +195,12 @@ export default function TaxReport() {
 
         {/* Right Column: Guidance & Schedule */}
         <div className="space-y-6 md:space-y-8">
-          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col h-full">
-            <div className="flex p-1 bg-gray-50 rounded-2xl mb-8">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700 flex flex-col h-full">
+            <div className="flex p-1 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-8 no-print">
               <button
                 onClick={() => setActiveTab('guidance')}
                 className={`flex-1 py-3 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
-                  activeTab === 'guidance' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-ink'
+                  activeTab === 'guidance' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-400 hover:text-ink dark:hover:text-white'
                 }`}
               >
                 ITR GUIDANCE
@@ -144,7 +208,7 @@ export default function TaxReport() {
               <button
                 onClick={() => setActiveTab('schedule')}
                 className={`flex-1 py-3 text-[10px] font-black tracking-widest uppercase rounded-xl transition-all ${
-                  activeTab === 'schedule' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-ink'
+                  activeTab === 'schedule' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-400 hover:text-ink dark:hover:text-white'
                 }`}
               >
                 ADVANCE TAX
@@ -160,41 +224,45 @@ export default function TaxReport() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="p-6 bg-indigo-50 rounded-[2rem] border border-indigo-100">
+                  <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-lg">
+                      <div className="w-10 h-10 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-white font-black text-lg">
                         {getStr(summary.itrGuidance?.formType).slice(-1) || '1'}
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-ink">{getStr(summary.itrGuidance?.formType)}</h4>
-                        <span className="text-[10px] font-black text-indigo-600 tracking-widest uppercase">RECOMMENDED FORM</span>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-lg font-bold text-ink dark:text-white">{getStr(summary.itrGuidance?.formType)}</h4>
+                          <TooltipIcon content="The specific Income Tax Return form you need to file based on your income sources." />
+                        </div>
+                        <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase">RECOMMENDED FORM</span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{getStr(summary.itrGuidance?.reason)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{getStr(summary.itrGuidance?.reason)}</p>
                   </div>
 
                   <div className="space-y-4">
                     <h5 className="text-[10px] font-black tracking-widest text-gray-400 uppercase">KEY RECOMMENDATIONS</h5>
                     {Array.isArray(summary.recommendations) ? summary.recommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
                         <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs font-medium text-ink leading-relaxed">{getStr(rec)}</p>
+                        <p className="text-xs font-medium text-ink dark:text-white leading-relaxed">{getStr(rec)}</p>
                       </div>
                     )) : (
-                      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
                         <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs font-medium text-ink leading-relaxed">{getStr(summary.recommendations)}</p>
+                        <p className="text-xs font-medium text-ink dark:text-white leading-relaxed">{getStr(summary.recommendations)}</p>
                       </div>
                     )}
                   </div>
 
                   {summary.foreignAssets?.detected && (
-                    <div className="p-6 bg-red-50 rounded-[2rem] border border-red-100">
+                    <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-[2rem] border border-red-100 dark:border-red-800/30">
                       <div className="flex items-center gap-2 mb-2">
-                        <AlertCircle className="w-4 h-4 text-red-600" />
-                        <h5 className="text-xs font-bold text-red-600 uppercase tracking-wider">SCHEDULE FA REQUIRED</h5>
+                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        <h5 className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">SCHEDULE FA REQUIRED</h5>
+                        <TooltipIcon content="Schedule FA is mandatory if you hold any foreign assets like US stocks (RSUs/ESPPs) or foreign bank accounts." />
                       </div>
-                      <p className="text-xs text-red-700 leading-relaxed">{getStr(summary.foreignAssets?.details)}</p>
+                      <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed">{getStr(summary.foreignAssets?.details)}</p>
                     </div>
                   )}
                 </motion.div>
@@ -208,24 +276,24 @@ export default function TaxReport() {
                 >
                   <div className="space-y-4">
                     {Array.isArray(summary.advanceTaxSchedule) ? summary.advanceTaxSchedule.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div key={i} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-ink">{getStr(item?.dueDate)}</span>
-                          <span className="text-[10px] font-black text-indigo-600 tracking-widest uppercase">{Number(item?.percentage) || 0}% INSTALLMENT</span>
+                          <span className="text-xs font-bold text-ink dark:text-white">{getStr(item?.dueDate)}</span>
+                          <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase">{Number(item?.percentage) || 0}% INSTALLMENT</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-black text-ink font-mono">{formatCurrency(item?.amount)}</span>
+                          <span className="text-sm font-black text-ink dark:text-white font-mono">{formatCurrency(item?.amount)}</span>
                         </div>
                       </div>
                     )) : (
-                      <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                        <span className="text-xs font-bold text-ink">No schedule available</span>
+                      <div className="p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
+                        <span className="text-xs font-bold text-ink dark:text-white">No schedule available</span>
                       </div>
                     )}
                   </div>
-                  <div className="p-6 bg-indigo-50 rounded-[2rem] border border-indigo-100 flex items-start gap-3">
-                    <Info className="w-5 h-5 text-indigo-600 mt-0.5" />
-                    <p className="text-xs text-indigo-700 leading-relaxed">
+                  <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
                       Interest under section 234C may apply if advance tax is not paid as per this schedule.
                     </p>
                   </div>
@@ -239,14 +307,17 @@ export default function TaxReport() {
   );
 }
 
-function StatCard({ label, value, icon, subValue }: { label: string; value: string; icon: React.ReactNode; subValue?: string }) {
+function StatCard({ label, value, icon, subValue, tooltip }: { label: string; value: string; icon: React.ReactNode; subValue?: string; tooltip?: string }) {
   return (
-    <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col items-center text-center">
-      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+    <div className="bg-white dark:bg-slate-800 rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 dark:shadow-none border border-indigo-50 dark:border-slate-700 flex flex-col items-center text-center">
+      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-4">
         {icon}
       </div>
-      <span className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-2">{label}</span>
-      <span className="text-2xl md:text-3xl font-black text-ink font-mono tracking-tighter">{value}</span>
+      <div className="flex items-center justify-center mb-2">
+        <span className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">{label}</span>
+        {tooltip && <TooltipIcon content={tooltip} />}
+      </div>
+      <span className="text-2xl md:text-3xl font-black text-ink dark:text-white font-mono tracking-tighter">{value}</span>
       {subValue && <span className="text-[10px] font-medium text-gray-400 mt-2">{subValue}</span>}
     </div>
   );
