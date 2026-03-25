@@ -118,28 +118,70 @@ export default function TaxReport() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Left Column: Stats & Chart */}
-        <div className="lg:col-span-2 space-y-6 md:space-y-8">
-          {/* Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            <StatCard 
-              label="TOTAL INCOME" 
-              value={formatCurrency(summary.summary.totalIncome)} 
-              icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
-              tooltip="Sum of all your income sources including salary, capital gains and other income."
-            />
-            <StatCard 
-              label="TAX LIABILITY (NEW)" 
-              value={formatCurrency(summary.summary.taxLiabilityNew)} 
-              icon={<ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />}
-              subValue={`Old Regime: ${formatCurrency(summary.summary.taxLiabilityOld)}`}
-              tooltip="Estimated tax under the New Tax Regime, which offers lower rates but fewer deductions."
-            />
-            <StatCard 
-              label="BALANCE TAX" 
-              value={formatCurrency(summary.summary.balanceTax)} 
-              icon={<Calendar className="w-5 h-5 text-red-600 dark:text-red-400" />}
-              tooltip="Remaining tax to be paid after accounting for TDS and advance tax."
-            />
+        <div className="lg:col-span-2 space-y-8 md:space-y-12">
+          
+          {/* Tax Liability Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 px-2">
+              <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Tax Liability</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+              <StatCard 
+                label="TOTAL INCOME" 
+                value={formatCurrency(summary.summary.totalIncome)} 
+                icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+                tooltip="Sum of all your income sources including salary, capital gains and other income."
+              />
+              <StatCard 
+                label="TAX LIABILITY (NEW)" 
+                value={formatCurrency(summary.summary.taxLiabilityNew)} 
+                icon={<ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />}
+                subValue={`Old Regime: ${formatCurrency(summary.summary.taxLiabilityOld)}`}
+                tooltip="Estimated tax under the New Tax Regime, which offers lower rates but fewer deductions."
+              />
+              <StatCard 
+                label="BALANCE TAX" 
+                value={formatCurrency(summary.summary.balanceTax)} 
+                icon={<Calendar className="w-5 h-5 text-red-600 dark:text-red-400" />}
+                tooltip="Remaining tax to be paid after TDS and advance tax. Interest under section 234C may apply."
+              />
+            </div>
+          </div>
+
+          {/* Income Sources Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 px-2">
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Income Sources</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+              <StatCard 
+                label="SALARY" 
+                value={formatCurrency(summary.summary.incomeSources.salary)} 
+                icon={<FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              />
+              <StatCard 
+                label="STCG" 
+                value={formatCurrency(summary.summary.incomeSources.stcg)} 
+                icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              />
+              <StatCard 
+                label="LTCG" 
+                value={formatCurrency(summary.summary.incomeSources.ltcg)} 
+                icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              />
+              <StatCard 
+                label="DIVIDENDS" 
+                value={formatCurrency(summary.summary.incomeSources.dividends)} 
+                icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              />
+              <StatCard 
+                label="OTHER" 
+                value={formatCurrency(summary.summary.incomeSources.other)} 
+                icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+              />
+            </div>
           </div>
 
           {/* Chart Card */}
@@ -191,21 +233,19 @@ export default function TaxReport() {
               <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Detailed Breakdown</h3>
               <TooltipIcon content="In-depth analysis of your tax computation, deductions and exemptions." />
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.isArray(summary.detailedBreakdown) ? summary.detailedBreakdown.map((item, i) => (
-                <div key={i} className="p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="flex flex-col gap-1">
-                    <h4 className="text-sm font-bold text-ink dark:text-white">{getStr(item.title)}</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{getStr(item.description)}</p>
-                  </div>
+                <div key={i} className="p-6 bg-gray-50 dark:bg-slate-700/50 rounded-3xl border border-gray-100 dark:border-slate-600 flex flex-col h-full">
+                  <h4 className="text-base font-bold text-ink dark:text-white mb-2">{getStr(item.title)}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">{getStr(item.description)}</p>
                   {item.amount !== undefined && item.amount !== null && (
-                    <div className="text-right flex-shrink-0">
-                      <span className="text-sm font-black text-ink dark:text-white font-mono">{formatCurrency(item.amount)}</span>
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-600">
+                      <span className="text-lg font-black text-ink dark:text-white font-mono">{formatCurrency(item.amount)}</span>
                     </div>
                   )}
                 </div>
               )) : (
-                <div className="p-5 bg-gray-50 dark:bg-slate-700/50 rounded-2xl border border-gray-100 dark:border-slate-600">
+                <div className="p-6 bg-gray-50 dark:bg-slate-700/50 rounded-3xl border border-gray-100 dark:border-slate-600">
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{getStr(summary.detailedBreakdown)}</p>
                 </div>
               )}
