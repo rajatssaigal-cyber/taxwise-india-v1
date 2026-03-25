@@ -82,7 +82,7 @@ const TAX_ANALYSIS_SCHEMA = {
 };
 
 export async function analyzeTaxDocuments(files: { data: string; mimeType: string }[], financialYear: string): Promise<TaxAnalysisResult> {
-  const model = "gemini-3.1-flash-preview";
+  const model = "gemini-3-flash-preview";
   
   const systemInstruction = `You are a Senior Indian Chartered Accountant. Analyze the provided documents for FY ${financialYear}. 
   Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, and 80C/80D deductions. 
