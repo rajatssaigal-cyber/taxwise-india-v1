@@ -131,7 +131,7 @@ export default function FileUpload() {
       }
     } catch (err: any) {
       console.error('Analysis error:', err);
-      setError(err?.message || typeof err === 'string' ? err : 'Failed to analyze documents. Please try again.');
+      setError(err instanceof Error ? err.message : (typeof err === 'string' ? err : 'Failed to analyze documents. Please try again.'));
     } finally {
       setProcessing(false);
       setLoading(false);
