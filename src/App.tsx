@@ -171,7 +171,7 @@ export default function App() {
                 </div>
                 <h3 className="text-xl font-bold text-ink dark:text-white">Gather Documents</h3>
                 <p className="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
-                  Download your <strong>Form 16</strong> from your employer, <strong>Salary Slips</strong>, or <strong>investment P&L statements</strong> from your broker (Zerodha, Groww, Upstox, etc.), crypto exchanges, or real estate transactions.
+                  Download your <strong>Form 16</strong> from your employer, <strong>Salary Slips</strong> or <strong>investment P&L statements</strong> from your broker (Zerodha, Groww, Upstox, etc.), crypto exchanges or real estate transactions.
                 </p>
               </div>
 
@@ -183,7 +183,7 @@ export default function App() {
                 </div>
                 <h3 className="text-xl font-bold text-ink dark:text-white">Upload & Analyze</h3>
                 <p className="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
-                  Drag and drop your files into the engine. Our AI securely extracts income, deductions, and capital gains in seconds.
+                  Drag and drop your files into the engine. Our AI securely extracts income, deductions and capital gains in seconds.
                 </p>
               </div>
 
@@ -195,7 +195,7 @@ export default function App() {
                 </div>
                 <h3 className="text-xl font-bold text-ink dark:text-white">Get Your Blueprint</h3>
                 <p className="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
-                  Review your personalized tax breakdown, compare Old vs. New regime, and chat with our AI CA for specific queries.
+                  Review your personalized tax breakdown, compare Old vs. New regime and chat with our AI CA for specific queries.
                 </p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function App() {
                   Your Data is <span className="text-indigo-400 italic font-serif">Yours.</span>
                 </h2>
                 <p className="text-gray-400 font-medium mt-6 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-                  We built TaxWise with a privacy-first architecture. Your financial documents are processed securely, never monetized, and strictly protected under global data protection laws.
+                  We built TaxWise with a privacy-first architecture. Your financial documents are processed securely, never monetized and strictly protected under global data protection laws.
                 </p>
               </div>
 

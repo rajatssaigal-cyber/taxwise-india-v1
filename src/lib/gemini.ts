@@ -111,13 +111,13 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   const model = "gemini-3-flash-preview";
   
   const systemInstruction = `You are a Senior Indian Chartered Accountant. Analyze the provided documents for FY ${financialYear}. 
-  Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, Crypto, Real Estate, and 80C/80D deductions. 
+  Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, Crypto, Real Estate and 80C/80D deductions. 
   Calculate tax for both Old Regime and New Regime. 
   Return a structured JSON object. 
   Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
   For advance tax schedule, ensure the percentages are cumulative (15%, 45%, 75%, 100%) and the amounts are calculated correctly based on the total tax liability minus TDS. Note that advance tax is only applicable if the estimated tax liability (after TDS) is ₹10,000 or more. If it's less, the schedule should reflect 0 amounts.
-  Ensure perfect grammatical accuracy in all text responses. Do not use a comma immediately after an ampersand (e.g., use "A & B" not "A &, B").
-  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.), crypto exchanges, real estate transactions, and foreign asset proofs. Parse their specific statement formats accurately. If foreign assets are detected, provide a pre-filled Schedule FA.`;
+  Ensure perfect grammatical accuracy in all text responses. Do not use a comma immediately after an ampersand (e.g., use "A & B" not "A &, B"). Do not use Oxford commas (e.g., use "A, B and C" instead of "A, B, and C").
+  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.), crypto exchanges, real estate transactions and foreign asset proofs. Parse their specific statement formats accurately. If foreign assets are detected, provide a pre-filled Schedule FA.`;
 
   const parts = files.map(f => ({
     inlineData: {
@@ -167,7 +167,7 @@ export async function chatWithTaxAssistant(message: string, context: TaxAnalysis
   const systemInstruction = `You are a helpful Indian Tax Assistant. 
   You have access to the user's tax analysis report: ${JSON.stringify(context)}. 
   Answer questions based on this data and Indian tax laws. 
-  Be professional, clear, and helpful.`;
+  Be professional, clear and helpful.`;
 
   const ai = getAI();
   const response = await ai.models.generateContent({

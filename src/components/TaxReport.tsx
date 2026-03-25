@@ -125,7 +125,7 @@ export default function TaxReport() {
               label="TOTAL INCOME" 
               value={formatCurrency(summary.summary.totalIncome)} 
               icon={<TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
-              tooltip="Sum of all your income sources including salary, capital gains, and other income."
+              tooltip="Sum of all your income sources including salary, capital gains and other income."
             />
             <StatCard 
               label="TAX LIABILITY (NEW)" 
@@ -189,7 +189,7 @@ export default function TaxReport() {
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <FileText className="w-5 h-5 md:w-6 md:h-6 text-indigo-600 dark:text-indigo-400" />
               <h3 className="text-xl md:text-2xl font-bold text-ink dark:text-white">Detailed Breakdown</h3>
-              <TooltipIcon content="In-depth analysis of your tax computation, deductions, and exemptions." />
+              <TooltipIcon content="In-depth analysis of your tax computation, deductions and exemptions." />
             </div>
             <div className="space-y-4">
               {Array.isArray(summary.detailedBreakdown) ? summary.detailedBreakdown.map((item, i) => (
@@ -406,7 +406,7 @@ export default function TaxReport() {
                       <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0">6</div>
                       <div>
                         <h4 className="text-sm font-bold text-ink dark:text-white">Pay Tax & e-Verify</h4>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pay any balance tax due, submit the return, and e-Verify using Aadhaar OTP or Net Banking.</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pay any balance tax due, submit the return and e-Verify using Aadhaar OTP or Net Banking.</p>
                       </div>
                     </div>
                   </div>

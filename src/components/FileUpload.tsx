@@ -160,7 +160,7 @@ export default function FileUpload() {
           </div>
           <h3 className="text-lg md:text-xl font-bold text-ink dark:text-white mb-2 text-center">Drop your tax documents here</h3>
           <p className="text-xs md:text-sm text-gray-400 dark:text-gray-500 font-medium text-center max-w-sm">
-            Upload income statements, Form 16, salary slips, broker statements, and all other source of income proofs.
+            Upload income statements, Form 16, salary slips, broker statements and all other source of income proofs.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
             <span className="px-2 py-1 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 rounded-md text-[10px] font-bold uppercase tracking-wider">PDF</span>
