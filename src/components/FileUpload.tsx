@@ -14,7 +14,7 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function FileUpload() {
-  const { setSummary, setLoading, setError, isLoading, financialYear } = useTaxStore();
+  const { setSummary, setLoading, setError, error, isLoading, financialYear } = useTaxStore();
   const [files, setFiles] = useState<File[]>([]);
   const [processing, setProcessing] = useState(false);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
@@ -27,12 +27,20 @@ export default function FileUpload() {
         if (!result) return reject('Failed to read file');
 
         if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
-          const workbook = XLSX.read(result, { type: 'binary' });
-          const sheetName = workbook.SheetNames[0];
-          const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
-          resolve({ data: btoa(csv), mimeType: 'text/csv' });
+          try {
+            const workbook = XLSX.read(result, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+            // Safe base64 encoding for Unicode characters (like ₹)
+            const base64 = btoa(unescape(encodeURIComponent(csv)));
+            resolve({ data: base64, mimeType: 'text/csv' });
+          } catch (err) {
+            reject('Failed to parse spreadsheet');
+          }
         } else {
-          resolve({ data: result as string, mimeType: file.type });
+          // Extract just the base64 data, removing the data URL prefix
+          const base64Data = (result as string).split(',')[1] || (result as string);
+          resolve({ data: base64Data, mimeType: file.type });
         }
       };
       reader.onerror = () => reject('File reading error');
@@ -88,6 +96,9 @@ export default function FileUpload() {
       const processedFiles = await Promise.all(files.map(processFile));
       const result = await analyzeTaxDocuments(processedFiles, financialYear);
       
+      // Show the report immediately, even if saving to history fails
+      setSummary(result);
+      
       // Save to Firestore if user is logged in
       const user = useTaxStore.getState().user;
       if (user) {
@@ -105,11 +116,11 @@ export default function FileUpload() {
             createdAt: serverTimestamp()
           });
         } catch (firestoreErr) {
-          handleFirestoreError(firestoreErr, OperationType.CREATE, `users/${user.uid}/analyses`);
+          console.error('Failed to save history:', firestoreErr);
+          // We don't throw handleFirestoreError here because we don't want to crash the UI
+          // after the report has already been successfully generated.
         }
       }
-
-      setSummary(result);
     } catch (err) {
       console.error('Analysis error:', err);
       setError('Failed to analyze documents. Please try again.');
@@ -151,6 +162,22 @@ export default function FileUpload() {
             <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[10px] font-bold uppercase tracking-wider">Max 10MB</span>
           </div>
         </div>
+
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mt-4 overflow-hidden"
+            >
+              <div className="flex items-center gap-2 text-sm font-bold text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {fileErrors.length > 0 && (
