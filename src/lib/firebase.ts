@@ -10,15 +10,13 @@ import { getFirestore, doc, getDocFromServer, FirestoreError } from 'firebase/fi
 // Placeholder config - in a real app, this would be in firebase-applet-config.json
 // or injected via environment variables.
 const firebaseConfig = {
-  apiKey: "AIzaSyDmgLb5rA_LQfFxdXjBpXi3RxVQYcyGG5Y",
-  authDomain: "taxwise-india-aefb1.firebaseapp.com",
-  projectId: "taxwise-india-aefb1",
-  storageBucket: "taxwise-india-aefb1.firebasestorage.app",
-  messagingSenderId: "623940411784",
-  appId: "1:623940411784:web:3ef4396c50d4cab80b9a3d",
-  measurementId: "G-B6NM4N2LRB"
+  apiKey: "AIzaSy...", // Placeholder
+  authDomain: "taxwise-india.firebaseapp.com",
+  projectId: "taxwise-india",
+  storageBucket: "taxwise-india.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
 };
-
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);

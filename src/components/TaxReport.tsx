@@ -46,17 +46,17 @@ export default function TaxReport() {
       {/* Header Section */}
       <div className="flex flex-col gap-2">
         <span className="text-[10px] font-black tracking-[0.2em] text-indigo-600 uppercase">TAX ANALYSIS REPORT</span>
-        <h2 className="text-6xl font-black tracking-tighter text-ink font-sans">
+        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-ink font-sans">
           Your Financial <span className="italic font-serif text-indigo-600">Blueprint</span>
         </h2>
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Left Column: Stats & Chart */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
           {/* Stat Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             <StatCard 
               label="TOTAL INCOME" 
               value={formatCurrency(summary.summary.totalIncome)} 
@@ -76,9 +76,9 @@ export default function TaxReport() {
           </div>
 
           {/* Chart Card */}
-          <div className="bg-white rounded-[3rem] p-10 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-bold text-ink">Income Distribution</h3>
+              <h3 className="text-lg md:text-xl font-bold text-ink">Income Distribution</h3>
               <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full">
                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
                 <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">LIVE DATA</span>
@@ -111,20 +111,20 @@ export default function TaxReport() {
           </div>
 
           {/* Detailed Breakdown */}
-          <div className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
-            <div className="flex items-center gap-3 mb-8">
-              <FileText className="w-6 h-6 text-indigo-600" />
-              <h3 className="text-2xl font-bold text-ink">Detailed Breakdown</h3>
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50">
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <FileText className="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
+              <h3 className="text-xl md:text-2xl font-bold text-ink">Detailed Breakdown</h3>
             </div>
-            <div className="prose prose-indigo max-w-none text-gray-600 font-sans leading-relaxed">
+            <div className="prose prose-sm md:prose-base prose-indigo max-w-none text-gray-600 font-sans leading-relaxed">
               <Markdown>{summary.detailedBreakdown}</Markdown>
             </div>
           </div>
         </div>
 
         {/* Right Column: Guidance & Schedule */}
-        <div className="space-y-8">
-          <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col h-full">
+        <div className="space-y-6 md:space-y-8">
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col h-full">
             <div className="flex p-1 bg-gray-50 rounded-2xl mb-8">
               <button
                 onClick={() => setActiveTab('guidance')}
@@ -225,12 +225,12 @@ export default function TaxReport() {
 
 function StatCard({ label, value, icon, subValue }: { label: string; value: string; icon: React.ReactNode; subValue?: string }) {
   return (
-    <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col items-center text-center">
-      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+    <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-8 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col items-center text-center">
+      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
         {icon}
       </div>
       <span className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase mb-2">{label}</span>
-      <span className="text-3xl font-black text-ink font-mono tracking-tighter">{value}</span>
+      <span className="text-2xl md:text-3xl font-black text-ink font-mono tracking-tighter">{value}</span>
       {subValue && <span className="text-[10px] font-medium text-gray-400 mt-2">{subValue}</span>}
     </div>
   );

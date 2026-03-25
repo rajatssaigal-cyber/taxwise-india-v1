@@ -15,6 +15,7 @@ export default function FileUpload() {
   const { setSummary, setLoading, setError, isLoading, financialYear } = useTaxStore();
   const [files, setFiles] = useState<File[]>([]);
   const [processing, setProcessing] = useState(false);
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
 
   const processFile = async (file: File): Promise<{ data: string; mimeType: string }> => {
     return new Promise((resolve, reject) => {
@@ -44,10 +45,28 @@ export default function FileUpload() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(prev => [...prev, ...acceptedFiles]);
+    setFileErrors([]);
+  }, []);
+
+  const onDropRejected = useCallback((fileRejections: any[]) => {
+    const errors = fileRejections.map(rejection => {
+      const file = rejection.file;
+      const error = rejection.errors[0];
+      if (error.code === 'file-too-large') {
+        return `${file.name} is too large (max 10MB).`;
+      }
+      if (error.code === 'file-invalid-type') {
+        return `${file.name} has an unsupported file type.`;
+      }
+      return `${file.name} could not be uploaded.`;
+    });
+    setFileErrors(errors);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
+    maxSize: 10 * 1024 * 1024, // 10MB
     accept: {
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
@@ -85,21 +104,39 @@ export default function FileUpload() {
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50"
+        className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50"
       >
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-[2rem] p-12 flex flex-col items-center justify-center transition-all cursor-pointer ${
+          className={`border-2 border-dashed rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-12 flex flex-col items-center justify-center transition-all cursor-pointer ${
             isDragActive ? 'border-indigo-600 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50/50'
           }`}
         >
           <input {...getInputProps()} />
-          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
-            <Upload className="w-8 h-8 text-indigo-600" />
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+            <Upload className="w-6 h-6 md:w-8 md:h-8 text-indigo-600" />
           </div>
-          <h3 className="text-xl font-bold text-ink mb-2">Drop your tax documents here</h3>
-          <p className="text-sm text-gray-400 font-medium">PDF, Excel, or Images of P&L Statement</p>
+          <h3 className="text-lg md:text-xl font-bold text-ink mb-2 text-center">Drop your tax documents here</h3>
+          <p className="text-xs md:text-sm text-gray-400 font-medium text-center">PDF, Excel, or Images of P&L Statement (Max 10MB)</p>
         </div>
+
+        <AnimatePresence>
+          {fileErrors.length > 0 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mt-4 space-y-2 overflow-hidden"
+            >
+              {fileErrors.map((err, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs font-medium text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{err}</span>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {files.length > 0 && (
@@ -159,7 +196,7 @@ export default function FileUpload() {
           )}
         </AnimatePresence>
 
-        <div className="mt-8 flex items-center justify-center gap-6 opacity-40">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 opacity-40">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
             <span className="text-[10px] font-black tracking-widest uppercase">DPDP ACT COMPLIANT</span>

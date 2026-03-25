@@ -37,7 +37,7 @@ export default function App() {
     <div className="min-h-screen bg-bg selection:bg-indigo-100 selection:text-indigo-900">
       <Navbar />
 
-      <main className="px-8 pt-12">
+      <main className="px-4 md:px-8 pt-6 md:pt-12">
         <AnimatePresence mode="wait">
           {!summary ? (
             <motion.div
@@ -45,10 +45,10 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col lg:flex-row items-center justify-between gap-16 py-12"
+              className="flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-16 py-6 md:py-12"
             >
               {/* Left Side: Editorial Typography */}
-              <div className="flex-1 space-y-8">
+              <div className="flex-1 space-y-6 md:space-y-8 text-center lg:text-left">
                 <motion.div
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -56,7 +56,7 @@ export default function App() {
                   className="space-y-2"
                 >
                   <span className="text-[10px] font-black tracking-[0.3em] text-indigo-600 uppercase">PREMIUM TAX ENGINE</span>
-                  <h1 className="text-8xl font-black tracking-tighter text-ink leading-[0.85] font-sans">
+                  <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-ink leading-[0.9] md:leading-[0.85] font-sans">
                     Tax Analysis <br />
                     <span className="italic font-serif text-indigo-600">Reimagined.</span>
                   </h1>
@@ -66,7 +66,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-xl text-gray-500 max-w-lg font-medium leading-relaxed"
+                  className="text-lg md:text-xl text-gray-500 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed"
                 >
                   Upload your Form 16 or P&L statement. Our AI-driven engine provides a comprehensive breakdown of your taxes in seconds.
                 </motion.p>
@@ -75,7 +75,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
-                  className="flex items-center gap-6"
+                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6"
                 >
                   <div className="flex -space-x-3">
                     {[1, 2, 3, 4].map(i => (
@@ -140,12 +140,12 @@ export default function App() {
       <ChatBot />
 
       {/* Footer */}
-      <footer className="px-8 py-12 border-t border-indigo-50 mt-24">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 opacity-40">
+      <footer className="px-4 md:px-8 py-8 md:py-12 border-t border-indigo-50 mt-16 md:mt-24">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 opacity-40">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black tracking-widest uppercase">© 2026 TAXWISE INDIA</span>
           </div>
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
             <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 transition-colors">PRIVACY POLICY</span>
             <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 transition-colors">TERMS OF SERVICE</span>
             <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 transition-colors">CONTACT SUPPORT</span>

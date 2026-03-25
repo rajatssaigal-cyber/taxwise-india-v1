@@ -50,14 +50,14 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50">
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-white w-[400px] h-[600px] rounded-[3rem] shadow-2xl shadow-indigo-200/50 border border-indigo-50 flex flex-col overflow-hidden mb-6"
+            className="bg-white w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] sm:h-[600px] rounded-[2rem] sm:rounded-[3rem] shadow-2xl shadow-indigo-200/50 border border-indigo-50 flex flex-col overflow-hidden mb-4 sm:mb-6"
           >
             {/* Header */}
             <div className="bg-indigo-600 p-8 flex items-center justify-between">

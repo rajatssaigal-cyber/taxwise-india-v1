@@ -88,7 +88,8 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, and 80C/80D deductions. 
   Calculate tax for both Old Regime and New Regime. 
   Return a structured JSON object. 
-  Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).`;
+  Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
+  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.). Parse their specific P&L statement formats accurately.`;
 
   const parts = files.map(f => ({
     inlineData: {
@@ -98,21 +99,26 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   }));
 
   const ai = getAI();
-  const response = await ai.models.generateContent({
-    model,
-    contents: [{ parts: [...parts, { text: "Analyze these tax documents and provide a detailed report in JSON format." }] }],
-    config: {
-      systemInstruction,
-      responseMimeType: "application/json",
-      responseSchema: TAX_ANALYSIS_SCHEMA,
-    },
-  });
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: [{ parts: [...parts, { text: "Analyze these tax documents and provide a detailed report in JSON format." }] }],
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: TAX_ANALYSIS_SCHEMA,
+      },
+    });
 
-  if (!response.text) {
-    throw new Error("No response from AI");
+    if (!response.text) {
+      throw new Error("No response from AI");
+    }
+
+    return JSON.parse(response.text) as TaxAnalysisResult;
+  } catch (error) {
+    console.error("AI Analysis Error:", error);
+    throw new Error("Failed to analyze the documents. Please ensure they are valid tax documents (Form 16, P&L statements) and try again.");
   }
-
-  return JSON.parse(response.text) as TaxAnalysisResult;
 }
 
 export async function chatWithTaxAssistant(message: string, context: TaxAnalysisResult | null) {
