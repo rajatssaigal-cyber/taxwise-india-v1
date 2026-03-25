@@ -34,8 +34,15 @@ export default function TaxReport() {
     { name: 'Other', value: summary.summary.incomeSources.other },
   ].filter(d => d.value > 0);
 
-  const formatCurrency = (val: number) => 
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+  const formatCurrency = (val: any) => 
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(val) || 0);
+
+  const getStr = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number') return val.toString();
+    return JSON.stringify(val);
+  };
 
   return (
     <motion.div
@@ -117,7 +124,7 @@ export default function TaxReport() {
               <h3 className="text-xl md:text-2xl font-bold text-ink">Detailed Breakdown</h3>
             </div>
             <div className="prose prose-sm md:prose-base prose-indigo max-w-none text-gray-600 font-sans leading-relaxed">
-              <Markdown>{summary.detailedBreakdown}</Markdown>
+              <Markdown>{getStr(summary.detailedBreakdown)}</Markdown>
             </div>
           </div>
         </div>
@@ -156,24 +163,29 @@ export default function TaxReport() {
                   <div className="p-6 bg-indigo-50 rounded-[2rem] border border-indigo-100">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-lg">
-                        {summary.itrGuidance.formType.slice(-1)}
+                        {getStr(summary.itrGuidance?.formType).slice(-1) || '1'}
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-ink">{summary.itrGuidance.formType}</h4>
+                        <h4 className="text-lg font-bold text-ink">{getStr(summary.itrGuidance?.formType)}</h4>
                         <span className="text-[10px] font-black text-indigo-600 tracking-widest uppercase">RECOMMENDED FORM</span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{summary.itrGuidance.reason}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{getStr(summary.itrGuidance?.reason)}</p>
                   </div>
 
                   <div className="space-y-4">
                     <h5 className="text-[10px] font-black tracking-widest text-gray-400 uppercase">KEY RECOMMENDATIONS</h5>
-                    {summary.recommendations.map((rec, i) => (
+                    {Array.isArray(summary.recommendations) ? summary.recommendations.map((rec, i) => (
                       <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                         <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs font-medium text-ink leading-relaxed">{rec}</p>
+                        <p className="text-xs font-medium text-ink leading-relaxed">{getStr(rec)}</p>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs font-medium text-ink leading-relaxed">{getStr(summary.recommendations)}</p>
+                      </div>
+                    )}
                   </div>
 
                   {summary.foreignAssets?.detected && (
@@ -182,7 +194,7 @@ export default function TaxReport() {
                         <AlertCircle className="w-4 h-4 text-red-600" />
                         <h5 className="text-xs font-bold text-red-600 uppercase tracking-wider">SCHEDULE FA REQUIRED</h5>
                       </div>
-                      <p className="text-xs text-red-700 leading-relaxed">{summary.foreignAssets.details}</p>
+                      <p className="text-xs text-red-700 leading-relaxed">{getStr(summary.foreignAssets?.details)}</p>
                     </div>
                   )}
                 </motion.div>
@@ -195,17 +207,21 @@ export default function TaxReport() {
                   className="space-y-6"
                 >
                   <div className="space-y-4">
-                    {summary.advanceTaxSchedule.map((item, i) => (
+                    {Array.isArray(summary.advanceTaxSchedule) ? summary.advanceTaxSchedule.map((item, i) => (
                       <div key={i} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-ink">{item.dueDate}</span>
-                          <span className="text-[10px] font-black text-indigo-600 tracking-widest uppercase">{item.percentage}% INSTALLMENT</span>
+                          <span className="text-xs font-bold text-ink">{getStr(item?.dueDate)}</span>
+                          <span className="text-[10px] font-black text-indigo-600 tracking-widest uppercase">{Number(item?.percentage) || 0}% INSTALLMENT</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-black text-ink font-mono">{formatCurrency(item.amount)}</span>
+                          <span className="text-sm font-black text-ink font-mono">{formatCurrency(item?.amount)}</span>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span className="text-xs font-bold text-ink">No schedule available</span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 bg-indigo-50 rounded-[2rem] border border-indigo-100 flex items-start gap-3">
                     <Info className="w-5 h-5 text-indigo-600 mt-0.5" />
