@@ -112,6 +112,7 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   
   const systemInstruction = `You are a Senior Indian Chartered Accountant. Analyze the provided documents for FY ${financialYear}. 
   Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, Crypto, Real Estate and 80C/80D deductions. 
+  CRITICAL: If multiple documents are provided (e.g., multiple P&L statements from different brokers), you MUST aggregate and sum the values across ALL documents. For example, Total LTCG = LTCG from Broker A + LTCG from Broker B. Do not just take the value from the last document. Pay close attention to positive vs negative values (profits vs losses) and sum them correctly.
   Calculate tax for both Old Regime and New Regime. 
   Return a structured JSON object. 
   Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
