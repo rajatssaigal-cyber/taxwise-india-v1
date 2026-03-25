@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import * as XLSX from 'xlsx';
 import { analyzeTaxDocuments } from '../lib/gemini';
 import { useTaxStore } from '../store/useTaxStore';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function FileUpload() {
   const { setSummary, setLoading, setError, isLoading, financialYear } = useTaxStore();
@@ -85,6 +87,28 @@ export default function FileUpload() {
     try {
       const processedFiles = await Promise.all(files.map(processFile));
       const result = await analyzeTaxDocuments(processedFiles, financialYear);
+      
+      // Save to Firestore if user is logged in
+      const user = useTaxStore.getState().user;
+      if (user) {
+        try {
+          const analysisRef = doc(collection(db, 'users', user.uid, 'analyses'));
+          await setDoc(analysisRef, {
+            userId: user.uid,
+            financialYear,
+            summary: result.summary,
+            itrGuidance: result.itrGuidance,
+            advanceTaxSchedule: result.advanceTaxSchedule,
+            detailedBreakdown: result.detailedBreakdown,
+            recommendations: result.recommendations,
+            ...(result.foreignAssets ? { foreignAssets: result.foreignAssets } : {}),
+            createdAt: serverTimestamp()
+          });
+        } catch (firestoreErr) {
+          handleFirestoreError(firestoreErr, OperationType.CREATE, `users/${user.uid}/analyses`);
+        }
+      }
+
       setSummary(result);
     } catch (err) {
       console.error('Analysis error:', err);

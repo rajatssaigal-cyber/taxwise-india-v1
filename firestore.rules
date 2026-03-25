@@ -19,7 +19,11 @@ rules_version = '2';
 //   - userId: string (required, immutable) - Owner's UID
 //   - financialYear: string (required) - FY of analysis
 //   - summary: map (required) - Tax summary data
+//   - itrGuidance: map (required) - ITR form guidance
+//   - advanceTaxSchedule: list (required) - Advance tax schedule
 //   - detailedBreakdown: string (required, max 100kb) - Markdown report
+//   - recommendations: list (required) - Tax recommendations
+//   - foreignAssets: map (optional) - Foreign assets info
 //   - createdAt: timestamp (required) - Analysis time
 //
 // ===============================================================
@@ -71,11 +75,15 @@ service cloud.firestore {
     }
 
     function isValidAnalysis(data) {
-      return hasOnlyAllowedFields(['userId', 'financialYear', 'summary', 'detailedBreakdown', 'createdAt']) &&
+      return hasOnlyAllowedFields(['userId', 'financialYear', 'summary', 'itrGuidance', 'advanceTaxSchedule', 'detailedBreakdown', 'recommendations', 'foreignAssets', 'createdAt']) &&
              data.userId == request.auth.uid &&
              data.financialYear is string && data.financialYear.size() < 10 &&
              data.summary is map &&
+             data.itrGuidance is map &&
+             data.advanceTaxSchedule is list &&
              data.detailedBreakdown is string && data.detailedBreakdown.size() < 102400 &&
+             data.recommendations is list &&
+             (!('foreignAssets' in data) || data.foreignAssets is map) &&
              data.createdAt is timestamp;
     }
 

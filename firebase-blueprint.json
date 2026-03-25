@@ -21,10 +21,14 @@
         "userId": { "type": "string", "description": "Owner of the analysis" },
         "financialYear": { "type": "string", "description": "FY for the analysis" },
         "summary": { "type": "object", "description": "High-level tax summary" },
+        "itrGuidance": { "type": "object", "description": "ITR form guidance" },
+        "advanceTaxSchedule": { "type": "array", "description": "Advance tax schedule" },
         "detailedBreakdown": { "type": "string", "description": "Markdown report" },
+        "recommendations": { "type": "array", "description": "Tax recommendations" },
+        "foreignAssets": { "type": "object", "description": "Foreign assets info" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Analysis timestamp" }
       },
-      "required": ["userId", "financialYear", "summary", "detailedBreakdown"]
+      "required": ["userId", "financialYear", "summary", "itrGuidance", "advanceTaxSchedule", "detailedBreakdown", "recommendations"]
     }
   },
   "firestore": {

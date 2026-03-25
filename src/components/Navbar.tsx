@@ -3,13 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ShieldCheck, LogOut, User as UserIcon } from 'lucide-react';
+import { useState } from 'react';
+import { ShieldCheck, LogOut, User as UserIcon, Clock } from 'lucide-react';
 import { useTaxStore } from '../store/useTaxStore';
 import { auth, googleProvider, signInWithPopup } from '../lib/firebase';
 import { motion } from 'motion/react';
+import HistoryModal from './HistoryModal';
 
 export default function Navbar() {
   const { user, setUser } = useTaxStore();
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -45,23 +48,32 @@ export default function Navbar() {
 
       <div className="flex items-center gap-4">
         {user ? (
-          <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-1 pr-4 rounded-2xl border border-indigo-50 shadow-sm">
-            <img
-              src={user.photoURL || ''}
-              alt={user.displayName || 'User'}
-              className="w-10 h-10 rounded-xl object-cover border border-indigo-100"
-              referrerPolicy="no-referrer"
-            />
-            <div className="flex flex-col">
-              <span className="text-xs font-bold text-ink leading-tight">{user.displayName}</span>
-              <span className="text-[10px] text-gray-500 font-mono tracking-tight">{user.email}</span>
-            </div>
+          <div className="flex items-center gap-2 md:gap-4">
             <button
-              onClick={handleLogout}
-              className="ml-2 p-2 hover:bg-red-50 rounded-xl transition-colors text-gray-400 hover:text-red-600"
+              onClick={() => setIsHistoryOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl transition-colors font-bold text-sm"
             >
-              <LogOut className="w-4 h-4" />
+              <Clock className="w-4 h-4" />
+              <span className="hidden sm:inline">History</span>
             </button>
+            <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-1 pr-4 rounded-2xl border border-indigo-50 shadow-sm">
+              <img
+                src={user.photoURL || ''}
+                alt={user.displayName || 'User'}
+                className="w-10 h-10 rounded-xl object-cover border border-indigo-100"
+                referrerPolicy="no-referrer"
+              />
+              <div className="hidden sm:flex flex-col">
+                <span className="text-xs font-bold text-ink leading-tight">{user.displayName}</span>
+                <span className="text-[10px] text-gray-500 font-mono tracking-tight">{user.email}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="ml-2 p-2 hover:bg-red-50 rounded-xl transition-colors text-gray-400 hover:text-red-600"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ) : (
           <motion.button
@@ -75,6 +87,8 @@ export default function Navbar() {
           </motion.button>
         )}
       </div>
+
+      <HistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
     </nav>
   );
 }

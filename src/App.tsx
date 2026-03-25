@@ -10,11 +10,25 @@ import FileUpload from './components/FileUpload';
 import TaxReport from './components/TaxReport';
 import ChatBot from './components/ChatBot';
 import { useTaxStore } from './store/useTaxStore';
-import { auth, onAuthStateChanged } from './lib/firebase';
-import { Loader2, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
+import { auth, googleProvider, signInWithPopup, onAuthStateChanged } from './lib/firebase';
+import { Loader2, CheckCircle2, FileText, ArrowRight, Lock, Shield, Server, EyeOff } from 'lucide-react';
 
 export default function App() {
   const { user, setUser, summary, isLoading } = useTaxStore();
+
+  const handleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      setUser({
+        uid: result.user.uid,
+        displayName: result.user.displayName,
+        email: result.user.email,
+        photoURL: result.user.photoURL,
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -93,7 +107,32 @@ export default function App() {
 
               {/* Right Side: Upload Card */}
               <div className="flex-1 w-full max-w-xl">
-                <FileUpload />
+                {user ? (
+                  <FileUpload />
+                ) : (
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 shadow-2xl shadow-indigo-100/50 border border-indigo-50 flex flex-col items-center justify-center text-center h-full min-h-[400px]"
+                  >
+                    <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mb-6">
+                      <Lock className="w-10 h-10 text-indigo-600" />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-black text-ink mb-4 tracking-tight">Secure Upload</h3>
+                    <p className="text-gray-500 font-medium mb-8 max-w-sm leading-relaxed text-sm md:text-base">
+                      Your financial data is highly sensitive. Please sign in to securely upload your tax documents. We use bank-grade encryption to protect your privacy.
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleLogin}
+                      className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3"
+                    >
+                      <Lock className="w-5 h-5" />
+                      SIGN IN TO UPLOAD
+                    </motion.button>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           ) : (
@@ -157,6 +196,62 @@ export default function App() {
                 <p className="text-gray-500 font-medium text-sm leading-relaxed">
                   Review your personalized tax breakdown, compare Old vs. New regime, and chat with our AI CA for specific queries.
                 </p>
+              </div>
+            </div>
+          </motion.section>
+        )}
+
+        {/* Security & Privacy Section */}
+        {!summary && (
+          <motion.section 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.8 }}
+            className="mt-24 md:mt-32 max-w-6xl mx-auto mb-12"
+          >
+            <div className="bg-ink text-white rounded-[3rem] p-8 md:p-16 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
+              
+              <div className="relative z-10 text-center mb-12 md:mb-16">
+                <span className="text-[10px] font-black tracking-[0.3em] text-indigo-400 uppercase">ENTERPRISE-GRADE SECURITY</span>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tighter mt-4">
+                  Your Data is <span className="text-indigo-400 italic font-serif">Yours.</span>
+                </h2>
+                <p className="text-gray-400 font-medium mt-6 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                  We built TaxWise with a privacy-first architecture. Your financial documents are processed securely, never monetized, and strictly protected under global data protection laws.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <h4 className="font-bold text-lg">DPDP & GDPR Compliant</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">Fully compliant with India's Digital Personal Data Protection Act and EU's GDPR. You have the right to delete your data anytime.</p>
+                </div>
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <EyeOff className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <h4 className="font-bold text-lg">Zero Data Monetization</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">We will never sell, rent, or share your financial data with third parties, advertisers, or brokers. Your trust is our product.</p>
+                </div>
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <Server className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <h4 className="font-bold text-lg">Ephemeral Processing</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">Documents are processed securely in memory and immediately discarded after the AI generates your tax report. No permanent storage.</p>
+                </div>
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <h4 className="font-bold text-lg">Bank-Grade Encryption</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">All data in transit is secured using TLS 1.3 encryption, ensuring your sensitive financial information is safe from interception.</p>
+                </div>
               </div>
             </div>
           </motion.section>
