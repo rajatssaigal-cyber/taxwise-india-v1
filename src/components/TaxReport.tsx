@@ -13,7 +13,6 @@ import {
   ShieldCheck, 
   Calendar, 
   FileText, 
-  ArrowRight, 
   CheckCircle2, 
   AlertCircle,
   Info

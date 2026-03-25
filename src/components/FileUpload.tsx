@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, FileSpreadsheet, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, FileText, FileSpreadsheet, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as XLSX from 'xlsx';
 import { analyzeTaxDocuments } from '../lib/gemini';
@@ -173,5 +173,3 @@ export default function FileUpload() {
     </div>
   );
 }
-
-import { ShieldCheck } from 'lucide-react';

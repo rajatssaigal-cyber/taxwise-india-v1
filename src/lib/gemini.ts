@@ -6,7 +6,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { TaxAnalysisResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+let aiClient: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is missing!");
+      throw new Error("GEMINI_API_KEY is required. Please set it in your environment variables.");
+    }
+    aiClient = new GoogleGenAI({ apiKey });
+  }
+  return aiClient;
+}
 
 const TAX_ANALYSIS_SCHEMA = {
   type: Type.OBJECT,
@@ -85,6 +97,7 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
     }
   }));
 
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model,
     contents: [{ parts: [...parts, { text: "Analyze these tax documents and provide a detailed report in JSON format." }] }],
@@ -110,6 +123,7 @@ export async function chatWithTaxAssistant(message: string, context: TaxAnalysis
   Answer questions based on this data and Indian tax laws. 
   Be professional, clear, and helpful.`;
 
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model,
     contents: [{ parts: [{ text: message }] }],

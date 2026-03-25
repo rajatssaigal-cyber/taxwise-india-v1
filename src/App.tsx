@@ -11,7 +11,7 @@ import TaxReport from './components/TaxReport';
 import ChatBot from './components/ChatBot';
 import { useTaxStore } from './store/useTaxStore';
 import { auth, onAuthStateChanged } from './lib/firebase';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function App() {
   const { user, setUser, summary, isLoading } = useTaxStore();
