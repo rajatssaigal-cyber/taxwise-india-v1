@@ -117,7 +117,15 @@ export default function FileUpload() {
             <Upload className="w-6 h-6 md:w-8 md:h-8 text-indigo-600" />
           </div>
           <h3 className="text-lg md:text-xl font-bold text-ink mb-2 text-center">Drop your tax documents here</h3>
-          <p className="text-xs md:text-sm text-gray-400 font-medium text-center">PDF, Excel, or Images of P&L Statement (Max 10MB)</p>
+          <p className="text-xs md:text-sm text-gray-400 font-medium text-center max-w-sm">
+            Upload Form 16, Salary Slips, or P&L Statements from brokers (Zerodha, Groww, Upstox, etc.)
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-[10px] font-bold uppercase tracking-wider">Excel / CSV</span>
+            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-[10px] font-bold uppercase tracking-wider">Images</span>
+            <span className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[10px] font-bold uppercase tracking-wider">Max 10MB</span>
+          </div>
         </div>
 
         <AnimatePresence>

@@ -11,7 +11,7 @@ import TaxReport from './components/TaxReport';
 import ChatBot from './components/ChatBot';
 import { useTaxStore } from './store/useTaxStore';
 import { auth, onAuthStateChanged } from './lib/firebase';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
 
 export default function App() {
   const { user, setUser, summary, isLoading } = useTaxStore();
@@ -107,6 +107,60 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* How to Use Section */}
+        {!summary && (
+          <motion.section 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="mt-24 md:mt-32 max-w-6xl mx-auto"
+          >
+            <div className="text-center mb-12 md:mb-16">
+              <span className="text-[10px] font-black tracking-[0.3em] text-indigo-600 uppercase">SIMPLE PROCESS</span>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-ink mt-4">
+                How TaxWise Works
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+              {/* Step 1 */}
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-2xl">
+                  1
+                </div>
+                <h3 className="text-xl font-bold text-ink">Gather Documents</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  Download your <strong>Form 16</strong> from your employer, <strong>Salary Slips</strong>, or <strong>Tax P&L Statements</strong> from your broker (Zerodha, Groww, Upstox, etc.).
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex flex-col items-center text-center space-y-4 relative">
+                <div className="hidden md:block absolute top-8 left-[-50%] w-full h-[2px] bg-gradient-to-r from-transparent via-indigo-100 to-transparent -z-10" />
+                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-2xl">
+                  2
+                </div>
+                <h3 className="text-xl font-bold text-ink">Upload & Analyze</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  Drag and drop your files into the engine. Our AI securely extracts income, deductions, and capital gains in seconds.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex flex-col items-center text-center space-y-4 relative">
+                <div className="hidden md:block absolute top-8 left-[-50%] w-full h-[2px] bg-gradient-to-r from-transparent via-indigo-100 to-transparent -z-10" />
+                <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">
+                  3
+                </div>
+                <h3 className="text-xl font-bold text-ink">Get Your Blueprint</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  Review your personalized tax breakdown, compare Old vs. New regime, and chat with our AI CA for specific queries.
+                </p>
+              </div>
+            </div>
+          </motion.section>
+        )}
       </main>
 
       {/* Loading Overlay */}
