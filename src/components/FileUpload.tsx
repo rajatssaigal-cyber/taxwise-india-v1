@@ -31,11 +31,19 @@ export default function FileUpload() {
             const workbook = XLSX.read(result, { type: 'binary' });
             const sheetName = workbook.SheetNames[0];
             const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
-            // Safe base64 encoding for Unicode characters (like ₹)
-            const base64 = btoa(unescape(encodeURIComponent(csv)));
+            
+            // Safe base64 encoding for large strings with Unicode characters
+            const bytes = new TextEncoder().encode(csv);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            const base64 = btoa(binary);
+            
             resolve({ data: base64, mimeType: 'text/csv' });
-          } catch (err) {
-            reject('Failed to parse spreadsheet');
+          } catch (err: any) {
+            console.error('Spreadsheet parse error:', err);
+            reject(err?.message || 'Failed to parse spreadsheet');
           }
         } else {
           // Extract just the base64 data, removing the data URL prefix
@@ -121,9 +129,9 @@ export default function FileUpload() {
           // after the report has already been successfully generated.
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Analysis error:', err);
-      setError('Failed to analyze documents. Please try again.');
+      setError(err?.message || typeof err === 'string' ? err : 'Failed to analyze documents. Please try again.');
     } finally {
       setProcessing(false);
       setLoading(false);

@@ -114,10 +114,22 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
       throw new Error("No response from AI");
     }
 
-    return JSON.parse(response.text) as TaxAnalysisResult;
-  } catch (error) {
+    let jsonStr = response.text.trim();
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.replace(/^```json\n/, '').replace(/\n```$/, '');
+    } else if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```\n/, '').replace(/\n```$/, '');
+    }
+
+    try {
+      return JSON.parse(jsonStr) as TaxAnalysisResult;
+    } catch (parseErr: any) {
+      console.error("JSON Parse Error:", parseErr, "Raw response:", response.text);
+      throw new Error("Failed to parse the AI response. Please try again.");
+    }
+  } catch (error: any) {
     console.error("AI Analysis Error:", error);
-    throw new Error("Failed to analyze the documents. Please ensure they are valid tax documents (Form 16, P&L statements) and try again.");
+    throw new Error(error?.message || "Failed to analyze the documents. Please ensure they are valid tax documents (Form 16, P&L statements) and try again.");
   }
 }
 
