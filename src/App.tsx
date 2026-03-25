@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Navbar from './components/Navbar';
 import FileUpload from './components/FileUpload';
@@ -11,10 +11,11 @@ import TaxReport from './components/TaxReport';
 import ChatBot from './components/ChatBot';
 import { useTaxStore } from './store/useTaxStore';
 import { auth, googleProvider, signInWithPopup, onAuthStateChanged } from './lib/firebase';
-import { Loader2, CheckCircle2, FileText, ArrowRight, Lock, Shield, Server, EyeOff } from 'lucide-react';
+import { Loader2, CheckCircle2, FileText, ArrowRight, Lock, Shield, Server, EyeOff, X } from 'lucide-react';
 
 export default function App() {
   const { user, setUser, summary, isLoading } = useTaxStore();
+  const [modalContent, setModalContent] = useState<{ title: string; content: string } | null>(null);
 
   const handleLogin = async () => {
     try {
@@ -82,7 +83,7 @@ export default function App() {
                   transition={{ delay: 0.4 }}
                   className="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed"
                 >
-                  Upload your Form 16 or P&L statement. Our AI-driven engine provides a comprehensive breakdown of your taxes in seconds.
+                  Upload your Form 16 or investment P&L statement. Our AI-driven engine provides a comprehensive breakdown of your taxes in seconds.
                 </motion.p>
 
                 <motion.div
@@ -170,7 +171,7 @@ export default function App() {
                 </div>
                 <h3 className="text-xl font-bold text-ink dark:text-white">Gather Documents</h3>
                 <p className="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
-                  Download your <strong>Form 16</strong> from your employer, <strong>Salary Slips</strong>, or <strong>Tax P&L Statements</strong> from your broker (Zerodha, Groww, Upstox, etc.).
+                  Download your <strong>Form 16</strong> from your employer, <strong>Salary Slips</strong>, or <strong>investment P&L statements</strong> from your broker (Zerodha, Groww, Upstox, etc.), crypto exchanges, or real estate transactions.
                 </p>
               </div>
 
@@ -295,12 +296,52 @@ export default function App() {
             <span className="text-[10px] font-black tracking-widest uppercase dark:text-white">© 2026 TAXWISE INDIA</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-            <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">PRIVACY POLICY</span>
-            <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">TERMS OF SERVICE</span>
-            <span className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">CONTACT SUPPORT</span>
+            <button onClick={() => setModalContent({ title: 'Privacy Policy', content: 'This is a prototype application. Your data is not stored permanently and is only used for the current session analysis. We do not sell or share your data with third parties.' })} className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">PRIVACY POLICY</button>
+            <button onClick={() => setModalContent({ title: 'Terms of Service', content: 'By using this prototype, you agree that the tax calculations and advice provided are for informational purposes only and do not constitute professional financial or legal advice.' })} className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">TERMS OF SERVICE</button>
+            <button onClick={() => setModalContent({ title: 'Contact Support', content: 'For support, please email us at support@taxwise-prototype.com or reach out to us on Twitter @TaxWiseApp.' })} className="text-[10px] font-black tracking-widest uppercase cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-white transition-colors">CONTACT SUPPORT</button>
           </div>
         </div>
       </footer>
+
+      {/* Info Modal */}
+      <AnimatePresence>
+        {modalContent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-bg/80 dark:bg-slate-950/80 backdrop-blur-sm z-[150] flex items-center justify-center p-4"
+            onClick={() => setModalContent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 md:p-8 max-w-md w-full shadow-2xl border border-indigo-50 dark:border-slate-800 relative"
+            >
+              <button
+                onClick={() => setModalContent(null)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-ink dark:hover:text-white bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h3 className="text-xl font-bold text-ink dark:text-white mb-4 pr-8">{modalContent.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                {modalContent.content}
+              </p>
+              <div className="mt-8 flex justify-end">
+                <button
+                  onClick={() => setModalContent(null)}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -36,6 +36,14 @@ export interface TaxAnalysisResult {
   foreignAssets?: {
     detected: boolean;
     details: string;
+    scheduleFA?: {
+      countryName: string;
+      institutionName: string;
+      assetType: string;
+      initialValue: number;
+      peakValue: number;
+      closingValue: number;
+    }[];
   };
 }
 

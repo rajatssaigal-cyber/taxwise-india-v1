@@ -290,7 +290,39 @@ export default function TaxReport() {
                         <h5 className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">SCHEDULE FA REQUIRED</h5>
                         <TooltipIcon content="Schedule FA is mandatory if you hold any foreign assets like US stocks (RSUs/ESPPs) or foreign bank accounts." />
                       </div>
-                      <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed">{getStr(summary.foreignAssets?.details)}</p>
+                      <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed mb-4">{getStr(summary.foreignAssets?.details)}</p>
+                      
+                      {summary.foreignAssets?.scheduleFA && summary.foreignAssets.scheduleFA.length > 0 && (
+                        <div className="mt-4 space-y-3">
+                          <h6 className="text-[10px] font-black tracking-widest text-red-600 dark:text-red-400 uppercase">PRE-FILLED SCHEDULE FA DATA</h6>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs text-red-800 dark:text-red-200">
+                              <thead>
+                                <tr className="border-b border-red-200 dark:border-red-800/50">
+                                  <th className="pb-2 font-bold whitespace-nowrap pr-4">Country</th>
+                                  <th className="pb-2 font-bold whitespace-nowrap pr-4">Institution</th>
+                                  <th className="pb-2 font-bold whitespace-nowrap pr-4">Asset Type</th>
+                                  <th className="pb-2 font-bold text-right whitespace-nowrap pr-4">Initial Value</th>
+                                  <th className="pb-2 font-bold text-right whitespace-nowrap pr-4">Peak Value</th>
+                                  <th className="pb-2 font-bold text-right whitespace-nowrap">Closing Value</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-red-100 dark:divide-red-800/30">
+                                {summary.foreignAssets.scheduleFA.map((fa, i) => (
+                                  <tr key={i}>
+                                    <td className="py-2 pr-4">{getStr(fa.countryName)}</td>
+                                    <td className="py-2 pr-4">{getStr(fa.institutionName)}</td>
+                                    <td className="py-2 pr-4">{getStr(fa.assetType)}</td>
+                                    <td className="py-2 text-right font-mono pr-4">{formatCurrency(fa.initialValue)}</td>
+                                    <td className="py-2 text-right font-mono pr-4">{formatCurrency(fa.peakValue)}</td>
+                                    <td className="py-2 text-right font-mono">{formatCurrency(fa.closingValue)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </motion.div>

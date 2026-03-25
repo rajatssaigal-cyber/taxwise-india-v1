@@ -86,6 +86,21 @@ const TAX_ANALYSIS_SCHEMA = {
       properties: {
         detected: { type: Type.BOOLEAN },
         details: { type: Type.STRING },
+        scheduleFA: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              countryName: { type: Type.STRING },
+              institutionName: { type: Type.STRING },
+              assetType: { type: Type.STRING },
+              initialValue: { type: Type.NUMBER },
+              peakValue: { type: Type.NUMBER },
+              closingValue: { type: Type.NUMBER },
+            },
+            required: ["countryName", "institutionName", "assetType", "initialValue", "peakValue", "closingValue"]
+          }
+        }
       },
     },
   },
@@ -96,13 +111,13 @@ export async function analyzeTaxDocuments(files: { data: string; mimeType: strin
   const model = "gemini-3-flash-preview";
   
   const systemInstruction = `You are a Senior Indian Chartered Accountant. Analyze the provided documents for FY ${financialYear}. 
-  Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, and 80C/80D deductions. 
+  Extract Salary (Form 16), STCG (Equity/Debt), LTCG (Equity 12.5% rule), Dividends, Crypto, Real Estate, and 80C/80D deductions. 
   Calculate tax for both Old Regime and New Regime. 
   Return a structured JSON object. 
   Be precise with Indian tax laws, including the latest budget changes (e.g., LTCG 12.5% for equity).
   For advance tax schedule, ensure the percentages are cumulative (15%, 45%, 75%, 100%) and the amounts are calculated correctly based on the total tax liability minus TDS. Note that advance tax is only applicable if the estimated tax liability (after TDS) is ₹10,000 or more. If it's less, the schedule should reflect 0 amounts.
   Ensure perfect grammatical accuracy in all text responses. Do not use a comma immediately after an ampersand (e.g., use "A & B" not "A &, B").
-  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.). Parse their specific P&L statement formats accurately.`;
+  You support all major Indian fintech brokers (Zerodha, Upstox, Groww, Angel One, Paytm Money, ICICI Direct, HDFC Securities, etc.), crypto exchanges, real estate transactions, and foreign asset proofs. Parse their specific statement formats accurately. If foreign assets are detected, provide a pre-filled Schedule FA.`;
 
   const parts = files.map(f => ({
     inlineData: {
